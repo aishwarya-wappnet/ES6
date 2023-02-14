@@ -86,11 +86,11 @@ setTimeout(function(){
 }, 5000);
 console.log("Season 2")
 ```
-But there are two important issues we face with calllbacks: 
+But there are two important issues we face with callbacks: 
 Callback Hell
 Inversion of Control
 ## Callback Hell
-A lot of nested callbacks and the code becomes unmaintainable.
+A lot of nested callbacks and the code becomes unmaintainable. Cod.e grows horizontally rather than vertically
 Suppose we are creating a E-Commerce website and have a cart in it.
 ```
 console.log("Pyramid of Doooooom");
@@ -118,6 +118,12 @@ In the above code, we gave the api.proceedTopPayment as callback to createOrder.
 Whenever we have a callback function and we pass it to some other function, we are giving the control of our function to some other code and we dont know what is happing behind the scenes. This inversion of control needs to be taken care of.
 
 # Promises
+What is a promise?
+Promise is a placeholder which will be filled later with a value. It is a placeholder for a certain period of time till we receive a value from a async operation.
+
+A container for a future value.
+
+A promise is an object representing the eventual completion or failure of an asynchronous operation 
 Promises are used to handle async operations in javascript. Passing callback function(proceedToPayment) in createOrder is not reliable. We are giving control of our program to some other part of code which we are not aware of. This is where promises come into picture. This can done with the help of promises in the following manner.
 ```
 const promise = createOrder(cart)
@@ -173,10 +179,40 @@ Promise {<pending>}
 ```
 Why this inconsistency? 
 
-When this console..log(user) is executed, at that time the 'user' object is in pending state as Javascipt engine executes everything wihtout waiting for anything. So at that particular time the promise is in 'pending state'. It takes some time to get the data and fill it back to get fulfilled. And so the browser logs 'pending'
+When this console..log(user) is executed, at that time the 'user' object is in pending state as Javascipt engine executes everything without waiting for anything. So at that particular time the promise is in 'pending state'. It takes some time to get the data and fill it back to get fulfilled. But javascript does not wait for the promise to get fulfill and execute the rest of the code. And so the browser logs 'pending'. But what google chrome does is after some time the data will come into the promise object. So when you expand the promise object it shows 'fulfilled'. And the promise result which was undefined earlier is now filled with response.
 
+Hence, the promise is in fulfilled state. Promise is a special object in javascript. It brings a lot of trust in the transaction because it gaurantees that the promise object can only be resolved once and will either be a success or a failure.
 
+There can be three states of promise. 
+- Fulfilled 
+- Rejected
+- Pending
 
+Promise objects are immutable. Whenever promise is fulfilled and whenever we have data inside the promise object, no one cann mutate that data. The 'user' object in this case cannot be edited.
 
+Thus, promises solve the issue of inversion of control. But there is one more issue with the callback and i.e Callback Hell. Promise helps to solve this issue as well by promise chaining.
+```
+createOrder(cart)
+.then(function(orderId){
+  return proceedToPayment(orderId);
+})
+.then(function(paymentInfo){
+  return showOrderSummary(paymentInfo);
+})
+.then(function(paymentInfo){
+  return updateWalletBalance(paymentInfo);
+})
+```
+Without promise chaining we would have ended with Pyramid of Doom.
 
+## Common mistakewhile Promise Chaining
+Whenever you are attaching a lot of then functions and a lot of callbacks in this promise chain what happens is we use to pipe data. We want the data to flow in the whole chain. For the above code, whatever is the response of the above createOrder, we want it to pass in the next chain and whatever is the response of proceedToPayment should pass in the next chain and so on, so we need to return the response, return the promise from a promise and thats when we will get data properly into the chain. As a developer 'return' is forgotten to be writtened.
 
+This way our code does'not grow horizontally.
+The above code can also be written with the help of arrow function.
+```
+createOrder(cart)
+.then((orderId) => proceedToPayment(orderId))
+.then((paymentInfo) => showOrderSummary(paymentInfo))
+.then((paymentInfo) => updateWalletBalance(paymentInfo));
+```
